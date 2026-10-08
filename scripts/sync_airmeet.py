@@ -21,6 +21,12 @@ EPOCH = "1970-01-01T00:00:00+00:00"
 sb_headers = {"apikey": SB_KEY, "Authorization": f"Bearer {SB_KEY}", "Content-Type": "application/json"}
 
 
+class HttpFail(RuntimeError):
+    def __init__(self, status, msg):
+        super().__init__(msg)
+        self.status = status
+
+
 def log(msg):
     print(msg, flush=True)
 
@@ -54,7 +60,8 @@ def auth():
         "Content-Type": "application/json"}, timeout=30)
     if not r.ok:
         raise RuntimeError(f"HTTP {r.status_code} /auth")
-    return r.json()["data"]["token"]
+    body = r.json()
+    return (body.get("data") or body)["token"]  # la API real no trae el envoltorio "data"
 
 
 def get(token, path, params=None):
@@ -69,18 +76,25 @@ def get(token, path, params=None):
         if r.status_code == 202:
             raise RuntimeError(f"timeout esperando {path.split('/')[-1]}")
         if not r.ok:
-            raise RuntimeError(f"HTTP {r.status_code} {path.replace(EVENT, '{event}')}")
+            raise HttpFail(r.status_code, f"HTTP {r.status_code} {path.replace(EVENT, '{event}')}")
         return r.json()
 
 
-def paged(token, path, size=50):
-    """Itera data[] con cursores after."""
+def paged(token, path, size=50, tolerate=()):
+    """Itera data[] con cursores after. `tolerate`: códigos HTTP que se tratan como vacío
+    (p. ej. 400 en asistencia/replay antes de que el evento ocurra)."""
     after = None
     while True:
         params = {"size": size}
         if after:
             params["after"] = after
-        body = get(token, path, params)
+        try:
+            body = get(token, path, params)
+        except HttpFail as e:
+            if e.status in tolerate:
+                log(f"sin datos aún ({e})")
+                return
+            raise
         yield from body.get("data") or []
         after = (body.get("cursors") or {}).get("after")
         if not after:
@@ -123,12 +137,13 @@ def run():
             email = (p.get("email") or "").strip().lower()
             if not email:
                 continue
-            real = not any(t in str(p.get("user_type") or "").lower() for t in EXCLUDED_TYPES)
+            real = bool(p.get("is_registered")) and not any(
+                t in f'{p.get("user_type")} {p.get("user_role")}'.lower() for t in EXCLUDED_TYPES)
             h = hid(email)
             if h in regs:  # duplicado: se queda el primer registro
                 continue
             regs[h] = {"id": h, "es_real": real, "registered_at": ts(p.get("registrationDate")),
-                       "origen": "directo", "attended": False, "synced_at": now}
+                       "origen": "importado" if p.get("access_type") == "CSV" else "directo", "attended": False, "synced_at": now}
         log(f"participantes: {len(regs)}")
 
         for u in paged(token, f"/airmeet/{EVENT}/utms"):
@@ -138,7 +153,7 @@ def run():
                 regs[h].update(utm_source=utms.get("utm_source"), utm_medium=utms.get("utm_medium"),
                                utm_campaign=utms.get("utm_campaign"), origen="campana")
 
-        for a in paged(token, f"/airmeet/{EVENT}/attendees"):
+        for a in paged(token, f"/airmeet/{EVENT}/attendees", tolerate=(400,)):
             h = hid(a.get("email") or "")
             if h in regs:
                 regs[h]["attended"] = True
@@ -160,7 +175,7 @@ def run():
         for b in get(token, f"/airmeet/{EVENT}/booths").get("booths") or []:
             for v in paged(token, f"/airmeet/{EVENT}/booth/{b['uid']}/booth-attendance"):
                 add(v.get("email"), "booth", ts(v.get("time_stamp")))
-        for v in paged(token, f"/airmeet/{EVENT}/event-replay-attendees"):
+        for v in paged(token, f"/airmeet/{EVENT}/event-replay-attendees", tolerate=(400,)):
             add(v.get("email"), "replay", None)
 
         # La sección de registros se escribe por completo en cada corrida (idempotente).
