@@ -136,7 +136,11 @@ $("loginForm").addEventListener("submit", async (e) => {
   } catch { $("err").textContent = "No se pudo conectar."; }
 });
 $("logout").onclick = () => showGate();
-$("refresh").onclick = () => load();
+$("refresh").onclick = async () => {
+  const b = $("refresh"); b.disabled = true; b.textContent = "Actualizando…";
+  await load();
+  b.disabled = false; b.textContent = "Refrescar";
+};
 
 async function load() {
   const t = sessionStorage.getItem(KEY);
@@ -152,7 +156,7 @@ async function load() {
 
 function render() {
   const k = data.kpi || {};
-  $("sync").textContent = data.last_sync ? "Última sincronización: " + new Date(data.last_sync).toLocaleString("es-MX") : "Sin sincronizaciones";
+  $("sync").textContent = (data.last_sync ? "Última sincronización con Airmeet: " + new Date(data.last_sync).toLocaleString("es-MX") : "Sin sincronizaciones") + " · consultado " + new Date().toLocaleTimeString("es-MX");
   $("meter").style.width = Math.min(100, (k.avance || 0) * 100) + "%";
   const m = $("meta"); m.replaceChildren();
   [[`${fmt(k.reales)} / ${fmt(k.meta_registros)}`, `Avance ${pct(k.avance)}`], [fmt(k.faltantes), "Faltan"], [fmt(k.dias_restantes), "Días al 4 de nov"],
