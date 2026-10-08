@@ -29,6 +29,10 @@ th{cursor:pointer;color:var(--mute);font-weight:600;user-select:none}
 .top .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top .v{text-align:right}.top .bar{grid-column:1/3;height:6px;margin-bottom:4px}
 .legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;margin-top:8px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
 svg{width:100%;height:auto;display:block}
+.attr{display:grid;grid-template-columns:minmax(200px,300px) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:700px){.attr{grid-template-columns:1fr}}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
+tr.total td{font-weight:650;border-top:2px solid var(--line)}
 </style>
 </head>
 <body>
@@ -54,6 +58,14 @@ svg{width:100%;height:auto;display:block}
   </div>
 
   <div class="grid g4" id="cards"></div>
+
+  <div class="card" style="margin-bottom:12px">
+    <h2>Atribución general</h2>
+    <div class="attr">
+      <div id="pie"></div>
+      <div class="scroll"><table id="attrTbl"></table></div>
+    </div>
+  </div>
 
   <div class="card" style="margin-bottom:12px">
     <h2>Todos los UTMs</h2>
@@ -134,13 +146,46 @@ function render() {
     .forEach(([v, l]) => { const d = el("div", null, "card"); d.append(el("div", v, "big"), el("div", l, "mute")); c.append(d); });
 
   fillSelect("fsrc", "utm_source"); fillSelect("fmed", "utm_medium");
-  renderTable(); renderTops(); renderDaily(); renderWeekly();
+  renderAttribution(); renderTable(); renderTops(); renderDaily(); renderWeekly();
 }
 
 function fillSelect(id, f) {
   const s = $(id), cur = s.value, vals = [...new Set((data.utm || []).map((x) => x[f]).filter(Boolean))].sort();
   const first = s.options[0]; s.replaceChildren(first);
   vals.forEach((v) => { const o = el("option", v); o.value = v; s.append(o); }); s.value = vals.includes(cur) ? cur : "";
+}
+
+const PIE = ["#0b6bcb", "#e07b00", "#1a9e6b", "#b43fb5", "#d6336c", "#7a5af8", "#0aa5b8", "#a8a318"], OTHER = "#8a949e";
+
+function renderAttribution() {
+  const u = [...(data.utm || [])].sort((a, b) => b.registros - a.registros);
+  const total = u.reduce((n, x) => n + x.registros, 0);
+  const color = (i) => i < PIE.length ? PIE[i] : OTHER;
+  const t = $("attrTbl"); t.replaceChildren();
+  const hr = el("tr"); ["UTM", "Registros", "Atribución"].forEach((l) => hr.append(el("th", l))); t.append(hr);
+  u.forEach((x, i) => { const tr = el("tr"), td = el("td"), sw = el("i", null, "sw"); sw.style.background = color(i);
+    td.append(sw, document.createTextNode(x.utm_key)); tr.append(td, el("td", fmt(x.registros)), el("td", pct(total ? x.registros / total : 0))); t.append(tr); });
+  const tt = el("tr", null, "total"); tt.append(el("td", "Total"), el("td", fmt(total)), el("td", total ? "100%" : "–")); t.append(tt);
+
+  const box = $("pie"); box.replaceChildren();
+  if (!total) return void box.append(el("div", "Sin datos todavía.", "mute"));
+  const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg"), C = 100, R = 96;
+  svg.setAttribute("viewBox", "0 0 200 200");
+  const slices = u.map((x, i) => ({ label: x.utm_key, v: x.registros, c: color(i) }));
+  const head = slices.slice(0, PIE.length), rest = slices.slice(PIE.length).reduce((n, x) => n + x.v, 0);
+  if (rest) head.push({ label: "Otros", v: rest, c: OTHER });
+  let a0 = -Math.PI / 2;
+  head.forEach((s) => {
+    const ang = s.v / total * 2 * Math.PI;
+    let node;
+    if (head.length === 1) { node = document.createElementNS(NS, "circle"); node.setAttribute("cx", C); node.setAttribute("cy", C); node.setAttribute("r", R); }
+    else { const a1 = a0 + ang, big = ang > Math.PI ? 1 : 0;
+      node = document.createElementNS(NS, "path");
+      node.setAttribute("d", `M${C} ${C} L${C + R * Math.cos(a0)} ${C + R * Math.sin(a0)} A${R} ${R} 0 ${big} 1 ${C + R * Math.cos(a1)} ${C + R * Math.sin(a1)} Z`); a0 = a1; }
+    node.setAttribute("fill", s.c); node.setAttribute("stroke", "var(--card)"); node.setAttribute("stroke-width", 1.5);
+    const tt = document.createElementNS(NS, "title"); tt.textContent = `${s.label}: ${fmt(s.v)} (${pct(s.v / total)})`; node.append(tt); svg.append(node);
+  });
+  box.append(svg);
 }
 
 const COLS = [["utm_key", "UTM"], ["registros", "Registros"], ["pct_total", "% total"], ["aporte_meta", "Aporte a meta"], ["reg_7d", "7d"], ["tendencia", "Tendencia"],
