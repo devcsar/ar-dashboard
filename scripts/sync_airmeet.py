@@ -52,7 +52,8 @@ def auth():
         "X-Airmeet-Access-Key": os.environ["AIRMEET_ACCESS_KEY"],
         "X-Airmeet-Secret-Key": os.environ["AIRMEET_SECRET_KEY"],
         "Content-Type": "application/json"}, timeout=30)
-    r.raise_for_status()
+    if not r.ok:
+        raise RuntimeError(f"HTTP {r.status_code} /auth")
     return r.json()["data"]["token"]
 
 
@@ -67,7 +68,8 @@ def get(token, path, params=None):
             continue
         if r.status_code == 202:
             raise RuntimeError(f"timeout esperando {path.split('/')[-1]}")
-        r.raise_for_status()
+        if not r.ok:
+            raise RuntimeError(f"HTTP {r.status_code} {path.replace(EVENT, '{event}')}")
         return r.json()
 
 
@@ -172,7 +174,7 @@ def run():
     except Exception as e:  # sin datos personales: solo tipo y código HTTP
         status = "error"
         code = getattr(getattr(e, "response", None), "status_code", "")
-        error = f"{type(e).__name__} {code}".strip()
+        error = (str(e) if isinstance(e, RuntimeError) else f"{type(e).__name__} {code}").strip()
         log(f"error: {error}")
     finally:
         requests.patch(f"{SB}/attr_sync_runs?id=eq.{run_id}", headers=sb_headers, timeout=30, json={
