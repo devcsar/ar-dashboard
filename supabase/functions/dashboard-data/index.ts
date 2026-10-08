@@ -40,17 +40,18 @@ Deno.serve(async (req) => {
   if (!(await validToken(req.headers.get("x-dash-token") ?? "", secret))) return json({ error: "unauthorized" }, 401);
 
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  const [kpi, utm, daily, weekly, sync] = await Promise.all([
+  const [kpi, utm, daily, weekly, sync, traffic] = await Promise.all([
     db.from("attr_kpi_meta").select("*").maybeSingle(),
     db.from("attr_utm_summary").select("*").order("registros", { ascending: false }),
     db.from("attr_daily_registrations").select("*").order("dia"),
     db.from("attr_weekly_registrations").select("*").order("semana"),
     db.from("attr_sync_runs").select("finished_at").eq("status", "ok").order("finished_at", { ascending: false }).limit(1).maybeSingle(),
+    db.from("attr_traffic_attributes").select("*").order("registrations", { ascending: false }),
   ]);
-  const err = [kpi, utm, daily, weekly].find((r) => r.error);
+  const err = [kpi, utm, daily, weekly, traffic].find((r) => r.error);
   if (err) return json({ error: "query" }, 500);
   return json({
-    kpi: kpi.data, utm: utm.data, daily: daily.data, weekly: weekly.data,
+    kpi: kpi.data, utm: utm.data, daily: daily.data, weekly: weekly.data, traffic: traffic.data,
     last_sync: sync.data?.finished_at ?? null,
   });
 });
