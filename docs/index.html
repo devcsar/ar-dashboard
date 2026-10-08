@@ -4,52 +4,64 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Atribución UTM · Airflow Summit 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--ink:#1b1f24;--mute:#6a737d;--line:#e3e6ea;--acc:#0b6bcb;--ok:#1a7f4b;--bad:#c4321f}
-@media(prefers-color-scheme:dark){:root{--bg:#111418;--card:#1a1f26;--ink:#e8ebef;--mute:#8d97a3;--line:#2a313a;--acc:#5aa5f5;--ok:#4cc38a;--bad:#f0735f}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+:root{color-scheme:light;--bg:#fffcfb;--card:#fff;--ink:#000;--mute:#6b6b6b;--line:#e8e8e8;--acc:#ff7557;--acc2:#e43921;--green:#04d659;--cyan:#00c8d2;--black:#000;--ok:#0a9f45;--bad:#e43921}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Rubik,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .hide{display:none!important}
+header.top{background:var(--black);color:#fff;border-bottom:4px solid var(--green)}
+header.top .in{max-width:1100px;margin:0 auto;padding:14px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+header.top h1{font-size:20px;font-weight:800;margin:0;color:#fff}header.top h1 b{color:var(--green)}
+header.top .mute{color:#bdbdbd}
 main{max-width:1100px;margin:0 auto;padding:16px}
-h1{font-size:20px;margin:0}h2{font-size:15px;margin:0 0 10px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+h2{font-size:18px;font-weight:700;margin:0 0 12px;color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
 .grid{display:grid;gap:12px;margin-bottom:12px}.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
-.big{font-size:26px;font-weight:650}.mute{color:var(--mute);font-size:13px}
-#gate{min-height:100vh;display:grid;place-items:center;padding:16px}#gate form{width:min(340px,100%);display:grid;gap:10px}
-input,select,button{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
-button{background:var(--acc);color:#fff;border:0;cursor:pointer}button.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
-#err{color:var(--bad);min-height:1.2em;font-size:13px}
-.bar{height:14px;background:var(--line);border-radius:7px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--acc)}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.big{font-size:26px;font-weight:800;line-height:1.15;overflow-wrap:anywhere}.mute{color:var(--mute);font-size:13px}
+#gate{min-height:100vh;display:grid;place-items:center;padding:16px;background:var(--black)}
+#gate form{width:min(360px,100%);display:grid;gap:12px;color:#fff}#gate h1{font-size:26px;font-weight:800;color:var(--acc);margin:0}#gate p{margin:0;color:var(--green);font-weight:500;font-size:14px}
+input,select,button{font:inherit;padding:10px 14px;border:1px solid var(--line);border-radius:60px;background:#fff;color:#000}
+button{background:var(--acc);color:#000;border:0;cursor:pointer;font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:.02em}
+button:hover{background:var(--acc2);color:#fff}
+button.ghost{background:transparent;color:#fff;border:1px solid #555}button.ghost:hover{background:#222;color:var(--green)}
+#err{color:#ff9d8a;min-height:1.2em;font-size:13px}
+.bar{height:16px;background:#f1eceb;border-radius:8px;overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2))}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.tools input{flex:1;min-width:140px}
-.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
-th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}
-th{cursor:pointer;color:var(--mute);font-weight:600;user-select:none}
-.up{color:var(--ok)}.down{color:var(--bad)}
-.top{display:grid;grid-template-columns:minmax(0,1fr) 60px;gap:4px 8px;font-size:13px;align-items:center}
-.top .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top .v{text-align:right}.top .bar{grid-column:1/3;height:6px;margin-bottom:4px}
-.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;margin-top:8px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{cursor:pointer;color:var(--mute);font-weight:500;user-select:none;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.txt{text-align:left}
+.up{color:var(--ok);font-weight:500}.down{color:var(--bad);font-weight:500}
+.top{display:grid;grid-template-columns:minmax(0,1fr) 60px;gap:4px 8px;font-size:14px;align-items:center}
+.top .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top .v{text-align:right;font-weight:500}.top .bar{grid-column:1/3;height:7px;margin-bottom:4px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;margin-top:8px}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
 svg{width:100%;height:auto;display:block}
 .attr{display:grid;grid-template-columns:minmax(200px,300px) minmax(0,1fr);gap:16px;align-items:start}
 @media(max-width:700px){.attr{grid-template-columns:1fr}}
-.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
-tr.total td{font-weight:650;border-top:2px solid var(--line)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+tr.total td{font-weight:700;border-top:2px solid var(--black)}
 </style>
 </head>
 <body>
 <section id="gate">
   <form id="loginForm">
-    <h1>Airflow Summit 2026 · Atribución</h1>
+    <p>NOVEMBER 4 &amp; 5, 2026 · ONLINE · FREE</p>
+    <h1>Airflow Summit 2026 · Online Reconnect</h1>
     <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password" required>
     <button type="submit">Enter</button>
     <div id="err" role="alert"></div>
   </form>
 </section>
 
-<main id="dashboard" class="hide">
-  <div class="row">
-    <h1>Atribución UTM · Airflow Summit 2026</h1>
-    <div><span class="mute" id="sync"></span> <button class="ghost" id="refresh">Refrescar</button> <button class="ghost" id="logout">Cerrar sesión</button></div>
-  </div>
+<div id="dashboard" class="hide">
+<header class="top"><div class="in">
+  <h1>Airflow Summit 2026 <b>Online Reconnect</b> · Atribución UTM</h1>
+  <div><span class="mute" id="sync"></span> <button class="ghost" id="refresh">Refrescar</button> <button class="ghost" id="logout">Cerrar sesión</button></div>
+</div></header>
+<main>
 
   <div class="card" style="margin-bottom:12px">
     <h2>Meta de registros</h2>
@@ -60,7 +72,7 @@ tr.total td{font-weight:650;border-top:2px solid var(--line)}
   <div class="grid g4" id="cards"></div>
 
   <div class="card" style="margin-bottom:12px">
-    <h2>Atribución general</h2>
+    <h2>Atribución general · cada UTM por separado</h2>
     <div class="attr">
       <div id="pie"></div>
       <div class="scroll"><table id="attrTbl"></table></div>
@@ -86,6 +98,7 @@ tr.total td{font-weight:650;border-top:2px solid var(--line)}
   <div class="card" style="margin-bottom:12px"><h2>Registros por día</h2><div id="daily"></div><div class="legend" id="dailyLegend"></div></div>
   <div class="card"><h2>Aporte semanal</h2><div class="scroll"><table id="weekly"></table></div></div>
 </main>
+</div>
 
 <script>
 const API = "https://jurwbrujnbvexkwmmtal.supabase.co/functions/v1";
@@ -93,7 +106,6 @@ const KEY = "dash_token";
 const $ = (id) => document.getElementById(id);
 const fmt = (n, d = 0) => n == null ? "–" : Number(n).toLocaleString("es-MX", { maximumFractionDigits: d });
 const pct = (n) => n == null ? "–" : (Number(n) * 100).toLocaleString("es-MX", { maximumFractionDigits: 1 }) + "%";
-const PAL = ["#0b6bcb", "#e07b00", "#1a9e6b", "#b43fb5", "#d6336c", "#7a5af8", "#8a949e"];
 let data = null, sortKey = "registros", sortDir = -1;
 
 function el(tag, text, cls) { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; }
@@ -155,35 +167,41 @@ function fillSelect(id, f) {
   vals.forEach((v) => { const o = el("option", v); o.value = v; s.append(o); }); s.value = vals.includes(cur) ? cur : "";
 }
 
-const PIE = ["#0b6bcb", "#e07b00", "#1a9e6b", "#b43fb5", "#d6336c", "#7a5af8", "#0aa5b8", "#a8a318"], OTHER = "#8a949e";
+const BRAND = ["#ff7557", "#00c8d2", "#04d659", "#e43921", "#212529", "#017cee", "#2aabee", "#a8a318"];
+const colorN = (i) => i < BRAND.length ? BRAND[i] : `hsl(${(i * 47) % 360} 62% 48%)`;
 
 function renderAttribution() {
   const u = [...(data.utm || [])].sort((a, b) => b.registros - a.registros);
   const total = u.reduce((n, x) => n + x.registros, 0);
-  const color = (i) => i < PIE.length ? PIE[i] : OTHER;
+  const hasContent = u.some((x) => x.utm_content);
   const t = $("attrTbl"); t.replaceChildren();
-  const hr = el("tr"); ["UTM", "Registros", "Atribución"].forEach((l) => hr.append(el("th", l))); t.append(hr);
-  u.forEach((x, i) => { const tr = el("tr"), td = el("td"), sw = el("i", null, "sw"); sw.style.background = color(i);
-    td.append(sw, document.createTextNode(x.utm_key)); tr.append(td, el("td", fmt(x.registros)), el("td", pct(total ? x.registros / total : 0))); t.append(tr); });
-  const tt = el("tr", null, "total"); tt.append(el("td", "Total"), el("td", fmt(total)), el("td", total ? "100%" : "–")); t.append(tt);
+  const hr = el("tr");
+  [["Source", 1], ["Medium", 1], ["Campaign", 1], ...(hasContent ? [["Content", 1]] : []), ["Registros", 0], ["Atribución", 0]]
+    .forEach(([l, left]) => hr.append(el("th", l, left ? "txt" : null))); t.append(hr);
+  u.forEach((x, i) => {
+    const tr = el("tr"), td = el("td", null, "txt"), sw = el("i", null, "sw"); sw.style.background = colorN(i);
+    const camp = x.origen === "campana";
+    td.append(sw, document.createTextNode(camp ? x.utm_source : x.utm_key)); tr.append(td);
+    [camp ? x.utm_medium : "–", camp ? x.utm_campaign : "–", ...(hasContent ? [x.utm_content || "–"] : [])].forEach((v) => tr.append(el("td", v, "txt")));
+    tr.append(el("td", fmt(x.registros)), el("td", pct(total ? x.registros / total : 0))); t.append(tr);
+  });
+  const tt = el("tr", null, "total"), n = 3 + (hasContent ? 1 : 0);
+  tt.append(el("td", "Total", "txt")); for (let i = 1; i < n; i++) tt.append(el("td")); tt.append(el("td", fmt(total)), el("td", total ? "100%" : "–")); t.append(tt);
 
   const box = $("pie"); box.replaceChildren();
   if (!total) return void box.append(el("div", "Sin datos todavía.", "mute"));
   const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg"), C = 100, R = 96;
   svg.setAttribute("viewBox", "0 0 200 200");
-  const slices = u.map((x, i) => ({ label: x.utm_key, v: x.registros, c: color(i) }));
-  const head = slices.slice(0, PIE.length), rest = slices.slice(PIE.length).reduce((n, x) => n + x.v, 0);
-  if (rest) head.push({ label: "Otros", v: rest, c: OTHER });
   let a0 = -Math.PI / 2;
-  head.forEach((s) => {
-    const ang = s.v / total * 2 * Math.PI;
+  u.forEach((x, i) => {
+    const ang = x.registros / total * 2 * Math.PI;
     let node;
-    if (head.length === 1) { node = document.createElementNS(NS, "circle"); node.setAttribute("cx", C); node.setAttribute("cy", C); node.setAttribute("r", R); }
+    if (u.length === 1) { node = document.createElementNS(NS, "circle"); node.setAttribute("cx", C); node.setAttribute("cy", C); node.setAttribute("r", R); }
     else { const a1 = a0 + ang, big = ang > Math.PI ? 1 : 0;
       node = document.createElementNS(NS, "path");
       node.setAttribute("d", `M${C} ${C} L${C + R * Math.cos(a0)} ${C + R * Math.sin(a0)} A${R} ${R} 0 ${big} 1 ${C + R * Math.cos(a1)} ${C + R * Math.sin(a1)} Z`); a0 = a1; }
-    node.setAttribute("fill", s.c); node.setAttribute("stroke", "var(--card)"); node.setAttribute("stroke-width", 1.5);
-    const tt = document.createElementNS(NS, "title"); tt.textContent = `${s.label}: ${fmt(s.v)} (${pct(s.v / total)})`; node.append(tt); svg.append(node);
+    node.setAttribute("fill", colorN(i)); node.setAttribute("stroke", "#fff"); node.setAttribute("stroke-width", 1.5);
+    const tt = document.createElementNS(NS, "title"); tt.textContent = `${x.utm_key}: ${fmt(x.registros)} (${pct(x.registros / total)})`; node.append(tt); svg.append(node);
   });
   box.append(svg);
 }
@@ -227,20 +245,19 @@ function renderDaily() {
   const d = data.daily || [], box = $("daily"); box.replaceChildren(); $("dailyLegend").replaceChildren();
   if (!d.length) return void box.append(el("div", "Sin datos todavía.", "mute"));
   const tot = {}; d.forEach((r) => tot[r.utm_key] = (tot[r.utm_key] || 0) + r.registros);
-  const top = Object.keys(tot).sort((a, b) => tot[b] - tot[a]).slice(0, 6);
-  const group = (k) => top.includes(k) ? k : "Otros";
+  const keys = Object.keys(tot).sort((a, b) => tot[b] - tot[a]);
   const days = [...new Set(d.map((r) => r.dia))].sort(), by = {};
-  d.forEach((r) => { (by[r.dia] ||= {}); const g = group(r.utm_key); by[r.dia][g] = (by[r.dia][g] || 0) + r.registros; });
-  const keys = [...top, "Otros"], W = 800, H = 240, pad = 28, bw = (W - pad) / days.length;
+  d.forEach((r) => { (by[r.dia] ||= {}); by[r.dia][r.utm_key] = (by[r.dia][r.utm_key] || 0) + r.registros; });
+  const W = 800, H = 240, pad = 28, bw = (W - pad) / days.length;
   const max = Math.max(...days.map((x) => Object.values(by[x]).reduce((a, b) => a + b, 0)));
   const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", `0 0 ${W} ${H + 20}`);
   days.forEach((day, i) => { let y = H; keys.forEach((k, ki) => { const v = by[day][k] || 0; if (!v) return; const h = v / max * (H - 10);
-    const r = document.createElementNS(NS, "rect"); r.setAttribute("x", pad + i * bw + 1); r.setAttribute("width", Math.max(1, bw - 2)); r.setAttribute("y", y - h); r.setAttribute("height", h); r.setAttribute("fill", PAL[ki]);
+    const r = document.createElementNS(NS, "rect"); r.setAttribute("x", pad + i * bw + 1); r.setAttribute("width", Math.max(1, bw - 2)); r.setAttribute("y", y - h); r.setAttribute("height", h); r.setAttribute("fill", colorN(ki));
     const tt = document.createElementNS(NS, "title"); tt.textContent = `${day} · ${k}: ${v}`; r.append(tt); svg.append(r); y -= h; }); });
   const lbl = (x, y, t, a) => { const e = document.createElementNS(NS, "text"); e.setAttribute("x", x); e.setAttribute("y", y); e.setAttribute("font-size", 11); e.setAttribute("fill", "currentColor"); e.setAttribute("text-anchor", a); e.textContent = t; svg.append(e); };
   lbl(pad - 4, 12, fmt(max), "end"); lbl(pad, H + 14, days[0], "start"); lbl(W, H + 14, days[days.length - 1], "end");
   box.append(svg);
-  keys.forEach((k, i) => { if (k === "Otros" && !d.some((r) => !top.includes(r.utm_key))) return; const s = el("span"); const sw = el("i"); sw.style.background = PAL[i]; s.append(sw, document.createTextNode(k)); $("dailyLegend").append(s); });
+  keys.forEach((k, i) => { const s = el("span"); const sw = el("i"); sw.style.background = colorN(i); s.append(sw, document.createTextNode(k)); $("dailyLegend").append(s); });
 }
 
 function renderWeekly() {
