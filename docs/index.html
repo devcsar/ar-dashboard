@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atribución UTM · Airflow Summit 2026</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1b1f24;--mute:#6a737d;--line:#e3e6ea;--acc:#0b6bcb;--ok:#1a7f4b;--bad:#c4321f}
+@media(prefers-color-scheme:dark){:root{--bg:#111418;--card:#1a1f26;--ink:#e8ebef;--mute:#8d97a3;--line:#2a313a;--acc:#5aa5f5;--ok:#4cc38a;--bad:#f0735f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+.hide{display:none!important}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0}h2{font-size:15px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.grid{display:grid;gap:12px;margin-bottom:12px}.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.big{font-size:26px;font-weight:650}.mute{color:var(--mute);font-size:13px}
+#gate{min-height:100vh;display:grid;place-items:center;padding:16px}#gate form{width:min(340px,100%);display:grid;gap:10px}
+input,select,button{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+button{background:var(--acc);color:#fff;border:0;cursor:pointer}button.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+#err{color:var(--bad);min-height:1.2em;font-size:13px}
+.bar{height:14px;background:var(--line);border-radius:7px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--acc)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.tools input{flex:1;min-width:140px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+th{cursor:pointer;color:var(--mute);font-weight:600;user-select:none}
+.up{color:var(--ok)}.down{color:var(--bad)}
+.top{display:grid;grid-template-columns:minmax(0,1fr) 60px;gap:4px 8px;font-size:13px;align-items:center}
+.top .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top .v{text-align:right}.top .bar{grid-column:1/3;height:6px;margin-bottom:4px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;margin-top:8px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+svg{width:100%;height:auto;display:block}
+</style>
+</head>
+<body>
+<section id="gate">
+  <form id="loginForm">
+    <h1>Airflow Summit 2026 · Atribución</h1>
+    <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+    <button type="submit">Enter</button>
+    <div id="err" role="alert"></div>
+  </form>
+</section>
+
+<main id="dashboard" class="hide">
+  <div class="row">
+    <h1>Atribución UTM · Airflow Summit 2026</h1>
+    <div><span class="mute" id="sync"></span> <button class="ghost" id="refresh">Refrescar</button> <button class="ghost" id="logout">Cerrar sesión</button></div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <h2>Meta de registros</h2>
+    <div class="bar"><i id="meter"></i></div>
+    <div class="grid g4" style="margin:12px 0 0" id="meta"></div>
+  </div>
+
+  <div class="grid g4" id="cards"></div>
+
+  <div class="card" style="margin-bottom:12px">
+    <h2>Todos los UTMs</h2>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Buscar UTM">
+      <select id="fsrc"><option value="">Todos los sources</option></select>
+      <select id="fmed"><option value="">Todos los mediums</option></select>
+    </div>
+    <div class="scroll"><table id="tbl"></table></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Top por registros</h2><div class="top" id="topReg"></div></div>
+    <div class="card"><h2>Top por interacciones por registrado</h2><div class="top" id="topInt"></div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px"><h2>Clicks</h2><div class="mute">Pendiente: Airmeet no entrega clicks; se conectará Bitly o GA4 en la fase 2.</div></div>
+
+  <div class="card" style="margin-bottom:12px"><h2>Registros por día</h2><div id="daily"></div><div class="legend" id="dailyLegend"></div></div>
+  <div class="card"><h2>Aporte semanal</h2><div class="scroll"><table id="weekly"></table></div></div>
+</main>
+
+<script>
+const API = "https://jurwbrujnbvexkwmmtal.supabase.co/functions/v1";
+const KEY = "dash_token";
+const $ = (id) => document.getElementById(id);
+const fmt = (n, d = 0) => n == null ? "–" : Number(n).toLocaleString("es-MX", { maximumFractionDigits: d });
+const pct = (n) => n == null ? "–" : (Number(n) * 100).toLocaleString("es-MX", { maximumFractionDigits: 1 }) + "%";
+const PAL = ["#0b6bcb", "#e07b00", "#1a9e6b", "#b43fb5", "#d6336c", "#7a5af8", "#8a949e"];
+let data = null, sortKey = "registros", sortDir = -1;
+
+function el(tag, text, cls) { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; }
+
+function showDashboard() { $("gate").classList.add("hide"); $("dashboard").classList.remove("hide"); }
+function showGate(msg) { sessionStorage.removeItem(KEY); data = null; $("dashboard").classList.add("hide"); $("gate").classList.remove("hide"); $("err").textContent = msg || ""; }
+
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault(); $("err").textContent = "";
+  try {
+    const r = await fetch(`${API}/dashboard-login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: $("pw").value }) });
+    const j = await r.json();
+    $("pw").value = "";
+    if (r.ok) { sessionStorage.setItem(KEY, j.token); await load(); return; }
+    if (r.status === 429) return void ($("err").textContent = `Demasiados intentos. Intenta en ${Math.ceil((j.retry_after || 900) / 60)} min.`);
+    $("err").textContent = "Contraseña incorrecta.";
+  } catch { $("err").textContent = "No se pudo conectar."; }
+});
+$("logout").onclick = () => showGate();
+$("refresh").onclick = () => load();
+
+async function load() {
+  const t = sessionStorage.getItem(KEY);
+  if (!t) return showGate();
+  try {
+    const r = await fetch(`${API}/dashboard-data`, { headers: { "x-dash-token": t } });
+    if (r.status === 401) return showGate("La sesión expiró. Ingresa de nuevo.");
+    if (!r.ok) throw 0;
+    data = await r.json();
+    showDashboard(); render();
+  } catch { showGate("No se pudieron cargar los datos."); }
+}
+
+function render() {
+  const k = data.kpi || {};
+  $("sync").textContent = data.last_sync ? "Última sincronización: " + new Date(data.last_sync).toLocaleString("es-MX") : "Sin sincronizaciones";
+  $("meter").style.width = Math.min(100, (k.avance || 0) * 100) + "%";
+  const m = $("meta"); m.replaceChildren();
+  [[`${fmt(k.reales)} / ${fmt(k.meta_registros)}`, `Avance ${pct(k.avance)}`], [fmt(k.faltantes), "Faltan"], [fmt(k.dias_restantes), "Días al 4 de nov"],
+   [`${fmt(k.ritmo_necesario, 1)} / día`, `Necesario · real 7d: ${fmt(k.ritmo_real_7d, 1)}`], [fmt(k.proyeccion), "Proyección al 4 de nov"]]
+    .forEach(([v, l]) => { const d = el("div"); d.append(el("div", v, "big"), el("div", l, "mute")); m.append(d); });
+
+  const u = data.utm || [], camp = u.filter((x) => x.origen === "campana");
+  const bestReg = [...camp].sort((a, b) => b.registros - a.registros)[0];
+  const bestInt = [...camp].filter((x) => x.registros >= 5).sort((a, b) => b.interacciones_por_registrado - a.interacciones_por_registrado)[0];
+  const c = $("cards"); c.replaceChildren();
+  [[fmt(k.reales), "Registros reales"], [fmt(camp.length), "UTMs activos"],
+   [bestReg ? bestReg.utm_key : "–", `Mejor por registros${bestReg ? " · " + fmt(bestReg.registros) : ""}`],
+   [bestInt ? bestInt.utm_key : "–", `Mejor por interacciones${bestInt ? " · " + fmt(bestInt.interacciones_por_registrado, 2) + " c/u (mín. 5 reg.)" : ""}`]]
+    .forEach(([v, l]) => { const d = el("div", null, "card"); d.append(el("div", v, "big"), el("div", l, "mute")); c.append(d); });
+
+  fillSelect("fsrc", "utm_source"); fillSelect("fmed", "utm_medium");
+  renderTable(); renderTops(); renderDaily(); renderWeekly();
+}
+
+function fillSelect(id, f) {
+  const s = $(id), cur = s.value, vals = [...new Set((data.utm || []).map((x) => x[f]).filter(Boolean))].sort();
+  const first = s.options[0]; s.replaceChildren(first);
+  vals.forEach((v) => { const o = el("option", v); o.value = v; s.append(o); }); s.value = vals.includes(cur) ? cur : "";
+}
+
+const COLS = [["utm_key", "UTM"], ["registros", "Registros"], ["pct_total", "% total"], ["aporte_meta", "Aporte a meta"], ["reg_7d", "7d"], ["tendencia", "Tendencia"],
+  ["tasa_asistencia", "Asistencia"], ["interacciones_por_registrado", "Inter./reg."], ["indice_valor", "Índice valor"], ["clicks", "Clicks"], ["conv", "Click→reg."]];
+
+function renderTable() {
+  const q = $("q").value.toLowerCase(), fs = $("fsrc").value, fm = $("fmed").value;
+  const rows = (data.utm || []).map((x) => ({ ...x, tendencia: x.reg_7d - x.reg_7d_previos }))
+    .filter((x) => x.utm_key.toLowerCase().includes(q) && (!fs || x.utm_source === fs) && (!fm || x.utm_medium === fm))
+    .sort((a, b) => sortKey === "utm_key" ? sortDir * a.utm_key.localeCompare(b.utm_key) : sortDir * ((Number(a[sortKey]) || 0) - (Number(b[sortKey]) || 0)));
+  const t = $("tbl"); t.replaceChildren();
+  const hr = el("tr");
+  COLS.forEach(([k, l]) => { const th = el("th", l + (k === sortKey ? (sortDir > 0 ? " ▲" : " ▼") : "")); if (k !== "clicks" && k !== "conv") th.onclick = () => { sortDir = sortKey === k ? -sortDir : -1; sortKey = k; renderTable(); }; hr.append(th); });
+  t.append(hr);
+  rows.forEach((r) => {
+    const tr = el("tr");
+    const tcls = r.tendencia > 0 ? "up" : r.tendencia < 0 ? "down" : "";
+    [[r.utm_key], [fmt(r.registros)], [pct(r.pct_total)], [pct(r.aporte_meta)], [fmt(r.reg_7d)], [(r.tendencia > 0 ? "+" : "") + fmt(r.tendencia), tcls],
+     [pct(r.tasa_asistencia)], [fmt(r.interacciones_por_registrado, 2)], [pct(r.indice_valor)], ["pendiente"], ["pendiente"]]
+      .forEach(([v, cls]) => tr.append(el("td", v, cls)));
+    t.append(tr);
+  });
+}
+["q", "fsrc", "fmed"].forEach((id) => $(id).addEventListener("input", renderTable));
+
+function topList(id, rows, key, f) {
+  const box = $(id); box.replaceChildren();
+  const max = Math.max(1, ...rows.map((r) => Number(r[key]) || 0));
+  rows.forEach((r) => { const bar = el("div", null, "bar"), i = el("i"); i.style.width = ((Number(r[key]) || 0) / max * 100) + "%"; bar.append(i);
+    box.append(el("div", r.utm_key, "n"), el("div", f(r[key]), "v"), bar); });
+}
+function renderTops() {
+  const u = data.utm || [];
+  topList("topReg", [...u].sort((a, b) => b.registros - a.registros).slice(0, 10), "registros", fmt);
+  topList("topInt", [...u].filter((x) => x.registros >= 5).sort((a, b) => b.interacciones_por_registrado - a.interacciones_por_registrado).slice(0, 10), "interacciones_por_registrado", (v) => fmt(v, 2));
+}
+
+function renderDaily() {
+  const d = data.daily || [], box = $("daily"); box.replaceChildren(); $("dailyLegend").replaceChildren();
+  if (!d.length) return void box.append(el("div", "Sin datos todavía.", "mute"));
+  const tot = {}; d.forEach((r) => tot[r.utm_key] = (tot[r.utm_key] || 0) + r.registros);
+  const top = Object.keys(tot).sort((a, b) => tot[b] - tot[a]).slice(0, 6);
+  const group = (k) => top.includes(k) ? k : "Otros";
+  const days = [...new Set(d.map((r) => r.dia))].sort(), by = {};
+  d.forEach((r) => { (by[r.dia] ||= {}); const g = group(r.utm_key); by[r.dia][g] = (by[r.dia][g] || 0) + r.registros; });
+  const keys = [...top, "Otros"], W = 800, H = 240, pad = 28, bw = (W - pad) / days.length;
+  const max = Math.max(...days.map((x) => Object.values(by[x]).reduce((a, b) => a + b, 0)));
+  const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", `0 0 ${W} ${H + 20}`);
+  days.forEach((day, i) => { let y = H; keys.forEach((k, ki) => { const v = by[day][k] || 0; if (!v) return; const h = v / max * (H - 10);
+    const r = document.createElementNS(NS, "rect"); r.setAttribute("x", pad + i * bw + 1); r.setAttribute("width", Math.max(1, bw - 2)); r.setAttribute("y", y - h); r.setAttribute("height", h); r.setAttribute("fill", PAL[ki]);
+    const tt = document.createElementNS(NS, "title"); tt.textContent = `${day} · ${k}: ${v}`; r.append(tt); svg.append(r); y -= h; }); });
+  const lbl = (x, y, t, a) => { const e = document.createElementNS(NS, "text"); e.setAttribute("x", x); e.setAttribute("y", y); e.setAttribute("font-size", 11); e.setAttribute("fill", "currentColor"); e.setAttribute("text-anchor", a); e.textContent = t; svg.append(e); };
+  lbl(pad - 4, 12, fmt(max), "end"); lbl(pad, H + 14, days[0], "start"); lbl(W, H + 14, days[days.length - 1], "end");
+  box.append(svg);
+  keys.forEach((k, i) => { if (k === "Otros" && !d.some((r) => !top.includes(r.utm_key))) return; const s = el("span"); const sw = el("i"); sw.style.background = PAL[i]; s.append(sw, document.createTextNode(k)); $("dailyLegend").append(s); });
+}
+
+function renderWeekly() {
+  const w = data.weekly || [], t = $("weekly"); t.replaceChildren();
+  const weeks = [...new Set(w.map((r) => r.semana))].sort().slice(-8), keys = [...new Set(w.map((r) => r.utm_key))];
+  const get = (k, s) => (w.find((r) => r.utm_key === k && r.semana === s) || {}).registros || 0;
+  keys.sort((a, b) => weeks.reduce((n, s) => n + get(b, s), 0) - weeks.reduce((n, s) => n + get(a, s), 0));
+  const hr = el("tr"); hr.append(el("th", "UTM")); weeks.forEach((s) => hr.append(el("th", s))); t.append(hr);
+  keys.forEach((k) => { const tr = el("tr"); tr.append(el("td", k)); weeks.forEach((s) => tr.append(el("td", fmt(get(k, s))))); t.append(tr); });
+}
+
+if (sessionStorage.getItem(KEY)) load();
+</script>
+</body>
+</html>

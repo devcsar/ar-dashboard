@@ -1,0 +1,32 @@
+name: sync-airmeet
+
+on:
+  schedule:
+    - cron: "0 * * * *"          # cada hora
+    - cron: "*/15 * 28-31 10 *"  # semana previa: cada 15 min
+    - cron: "*/15 * 1-6 11 *"    # 4 y 5 de nov, y 6 de nov para la asistencia final
+  workflow_dispatch:
+
+concurrency:
+  group: sync-airmeet
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests==2.32.3
+      - run: python scripts/sync_airmeet.py
+        env:
+          AIRMEET_ACCESS_KEY: ${{ secrets.AIRMEET_ACCESS_KEY }}
+          AIRMEET_SECRET_KEY: ${{ secrets.AIRMEET_SECRET_KEY }}
+          AIRMEET_REGION_URL: ${{ secrets.AIRMEET_REGION_URL }}
+          AIRMEET_EVENT_ID: ${{ secrets.AIRMEET_EVENT_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          HASH_SALT: ${{ secrets.HASH_SALT }}
