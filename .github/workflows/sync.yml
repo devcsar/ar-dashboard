@@ -2,7 +2,7 @@ name: sync-airmeet
 
 on:
   schedule:
-    - cron: "0 * * * *"          # cada hora
+    - cron: "17 * * * *"         # cada hora (minuto 17: el :00 es el más congestionado en GitHub)
     - cron: "*/15 * 28-31 10 *"  # semana previa: cada 15 min
     - cron: "*/15 * 1-6 11 *"    # 4 y 5 de nov, y 6 de nov para la asistencia final
   workflow_dispatch:
