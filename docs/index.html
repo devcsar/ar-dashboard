@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Atribución UTM · Airflow Summit 2026</title>
+<title>UTM Attribution · Airflow Summit 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -52,7 +52,7 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink)}
   <form id="loginForm">
     <p>NOVEMBER 4 &amp; 5, 2026 · ONLINE · FREE</p>
     <h1>Airflow Summit 2026 · Online Reconnect</h1>
-    <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
     <button type="submit">Enter</button>
     <div id="err" role="alert"></div>
   </form>
@@ -60,13 +60,13 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink)}
 
 <div id="dashboard" class="hide">
 <header class="top"><div class="in">
-  <h1>Airflow Summit 2026 <b>Online Reconnect</b> · Atribución UTM</h1>
-  <div><span class="mute" id="sync"></span> <button class="ghost" id="refresh">Refrescar</button> <button class="ghost" id="logout">Cerrar sesión</button></div>
+  <h1>Airflow Summit 2026 <b>Online Reconnect</b> · UTM Attribution</h1>
+  <div><span class="mute" id="sync"></span> <button class="ghost" id="refresh">Refresh</button> <button class="ghost" id="logout">Log out</button></div>
 </div></header>
 <main>
 
   <div class="card" style="margin-bottom:12px">
-    <h2>Meta de registros</h2>
+    <h2>Registration goal</h2>
     <div class="bar"><i id="meter"></i></div>
     <div class="grid g4" style="margin:12px 0 0" id="meta"></div>
   </div>
@@ -74,7 +74,7 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink)}
   <div class="grid g4" id="cards"></div>
 
   <div class="card" style="margin-bottom:12px">
-    <h2>Atribución general · cada UTM por separado</h2>
+    <h2>Overall attribution · each UTM listed separately</h2>
     <div class="attr">
       <div id="pie"></div>
       <div class="scroll"><table id="attrTbl"></table></div>
@@ -82,7 +82,7 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink)}
   </div>
 
   <div class="card" style="margin-bottom:12px">
-    <h2>Atributos de tráfico · Airmeet</h2>
+    <h2>Traffic attributes · Airmeet</h2>
     <p class="note" id="trNote"></p>
     <div class="grid g2" style="margin:0">
       <div><div class="mute" style="margin-bottom:6px">Source</div><div class="scroll"><table id="trSource"></table></div></div>
@@ -91,23 +91,23 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink)}
   </div>
 
   <div class="card" style="margin-bottom:12px">
-    <h2>Todos los UTMs</h2>
+    <h2>All UTMs</h2>
     <div class="tools">
-      <input id="q" type="search" placeholder="Buscar UTM">
-      <select id="fsrc"><option value="">Todos los sources</option></select>
-      <select id="fmed"><option value="">Todos los mediums</option></select>
+      <input id="q" type="search" placeholder="Search UTM">
+      <select id="fsrc"><option value="">All sources</option></select>
+      <select id="fmed"><option value="">All mediums</option></select>
     </div>
     <div class="scroll"><table id="tbl"></table></div>
   </div>
 
   <div class="grid g2">
-    <div class="card"><h2>Top por registros</h2><div class="top" id="topReg"></div></div>
-    <div class="card"><h2>Top por interacciones por registrado</h2><div class="top" id="topInt"></div></div>
+    <div class="card"><h2>Top by registrations</h2><div class="top" id="topReg"></div></div>
+    <div class="card"><h2>Top by interactions per registrant</h2><div class="top" id="topInt"></div></div>
   </div>
-  <div class="card" style="margin-bottom:12px"><h2>Clicks</h2><div class="mute">Pendiente: Airmeet no entrega clicks; se conectará Bitly o GA4 en la fase 2.</div></div>
+  <div class="card" style="margin-bottom:12px"><h2>Clicks</h2><div class="mute">Pending: Airmeet does not provide link clicks; Bitly or GA4 will be connected in phase 2.</div></div>
 
-  <div class="card" style="margin-bottom:12px"><h2>Registros por día</h2><div id="daily"></div><div class="legend" id="dailyLegend"></div></div>
-  <div class="card"><h2>Aporte semanal</h2><div class="scroll"><table id="weekly"></table></div></div>
+  <div class="card" style="margin-bottom:12px"><h2>Registrations per day</h2><div id="daily"></div><div class="legend" id="dailyLegend"></div></div>
+  <div class="card"><h2>Weekly contribution</h2><div class="scroll"><table id="weekly"></table></div></div>
 </main>
 </div>
 
@@ -115,8 +115,8 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink)}
 const API = "https://jurwbrujnbvexkwmmtal.supabase.co/functions/v1";
 const KEY = "dash_token";
 const $ = (id) => document.getElementById(id);
-const fmt = (n, d = 0) => n == null ? "–" : Number(n).toLocaleString("es-MX", { maximumFractionDigits: d });
-const pct = (n) => n == null ? "–" : (Number(n) * 100).toLocaleString("es-MX", { maximumFractionDigits: 1 }) + "%";
+const fmt = (n, d = 0) => n == null ? "–" : Number(n).toLocaleString("en-US", { maximumFractionDigits: d });
+const pct = (n) => n == null ? "–" : (Number(n) * 100).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "%";
 let data = null, sortKey = "registros", sortDir = -1;
 
 function el(tag, text, cls) { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; }
@@ -131,15 +131,15 @@ $("loginForm").addEventListener("submit", async (e) => {
     const j = await r.json();
     $("pw").value = "";
     if (r.ok) { sessionStorage.setItem(KEY, j.token); await load(); return; }
-    if (r.status === 429) return void ($("err").textContent = `Demasiados intentos. Intenta en ${Math.ceil((j.retry_after || 900) / 60)} min.`);
-    $("err").textContent = "Contraseña incorrecta.";
-  } catch { $("err").textContent = "No se pudo conectar."; }
+    if (r.status === 429) return void ($("err").textContent = `Too many attempts. Try again in ${Math.ceil((j.retry_after || 900) / 60)} min.`);
+    $("err").textContent = "Incorrect password.";
+  } catch { $("err").textContent = "Could not connect."; }
 });
 $("logout").onclick = () => showGate();
 $("refresh").onclick = async () => {
-  const b = $("refresh"); b.disabled = true; b.textContent = "Actualizando…";
+  const b = $("refresh"); b.disabled = true; b.textContent = "Refreshing…";
   await load();
-  b.disabled = false; b.textContent = "Refrescar";
+  b.disabled = false; b.textContent = "Refresh";
 };
 
 async function load() {
@@ -147,33 +147,39 @@ async function load() {
   if (!t) return showGate();
   try {
     const r = await fetch(`${API}/dashboard-data`, { headers: { "x-dash-token": t } });
-    if (r.status === 401) return showGate("La sesión expiró. Ingresa de nuevo.");
+    if (r.status === 401) return showGate("Your session expired. Please log in again.");
     if (!r.ok) throw 0;
-    data = await r.json();
+    data = relabel(await r.json());
     showDashboard(); render();
-  } catch { showGate("No se pudieron cargar los datos."); }
+  } catch { showGate("Could not load the data."); }
 }
 
 function render() {
   const k = data.kpi || {};
-  $("sync").textContent = (data.last_sync ? "Última sincronización con Airmeet: " + new Date(data.last_sync).toLocaleString("es-MX") : "Sin sincronizaciones") + " · consultado " + new Date().toLocaleTimeString("es-MX");
+  $("sync").textContent = (data.last_sync ? "Last sync with Airmeet: " + new Date(data.last_sync).toLocaleString("en-US") : "No syncs yet") + " · loaded " + new Date().toLocaleTimeString("en-US");
   $("meter").style.width = Math.min(100, (k.avance || 0) * 100) + "%";
   const m = $("meta"); m.replaceChildren();
-  [[`${fmt(k.reales)} / ${fmt(k.meta_registros)}`, `Avance ${pct(k.avance)}`], [fmt(k.faltantes), "Faltan"], [fmt(k.dias_restantes), "Días al 4 de nov"],
-   [`${fmt(k.ritmo_necesario, 1)} / día`, `Necesario · real 7d: ${fmt(k.ritmo_real_7d, 1)}`], [fmt(k.proyeccion), "Proyección al 4 de nov"]]
+  [[`${fmt(k.reales)} / ${fmt(k.meta_registros)}`, `Progress ${pct(k.avance)}`], [fmt(k.faltantes), "Remaining"], [fmt(k.dias_restantes), "Days to Nov 4"],
+   [`${fmt(k.ritmo_necesario, 1)} / day`, `Required · actual 7d: ${fmt(k.ritmo_real_7d, 1)}`], [fmt(k.proyeccion), "Projection for Nov 4"]]
     .forEach(([v, l]) => { const d = el("div"); d.append(el("div", v, "big"), el("div", l, "mute")); m.append(d); });
 
   const u = data.utm || [], camp = u.filter((x) => x.origen === "campana");
   const bestReg = [...camp].sort((a, b) => b.registros - a.registros)[0];
   const bestInt = [...camp].filter((x) => x.registros >= 5).sort((a, b) => b.interacciones_por_registrado - a.interacciones_por_registrado)[0];
   const c = $("cards"); c.replaceChildren();
-  [[fmt(k.reales), "Registros reales"], [fmt(camp.length), "UTMs activos"],
-   [bestReg ? bestReg.utm_key : "–", `Mejor por registros${bestReg ? " · " + fmt(bestReg.registros) : ""}`],
-   [bestInt ? bestInt.utm_key : "–", `Mejor por interacciones${bestInt ? " · " + fmt(bestInt.interacciones_por_registrado, 2) + " c/u (mín. 5 reg.)" : ""}`]]
+  [[fmt(k.reales), "Real registrations"], [fmt(camp.length), "Active UTMs"],
+   [bestReg ? bestReg.utm_key : "–", `Best by registrations${bestReg ? " · " + fmt(bestReg.registros) : ""}`],
+   [bestInt ? bestInt.utm_key : "–", `Best by interactions${bestInt ? " · " + fmt(bestInt.interacciones_por_registrado, 2) + " each (min. 5 reg.)" : ""}`]]
     .forEach(([v, l]) => { const d = el("div", null, "card"); d.append(el("div", v, "big"), el("div", l, "mute")); c.append(d); });
 
   fillSelect("fsrc", "utm_source"); fillSelect("fmed", "utm_medium");
   renderAttribution(); renderTraffic(); renderTable(); renderTops(); renderDaily(); renderWeekly();
+}
+
+const LABELS = { "Sin UTM / directo": "No UTM / direct", "Importados": "Imported" };
+function relabel(d) {
+  ["utm", "daily", "weekly"].forEach((k) => (d[k] || []).forEach((r) => { if (LABELS[r.utm_key]) r.utm_key = LABELS[r.utm_key]; }));
+  return d;
 }
 
 function fillSelect(id, f) {
@@ -191,7 +197,7 @@ function renderAttribution() {
   const hasContent = u.some((x) => x.utm_content);
   const t = $("attrTbl"); t.replaceChildren();
   const hr = el("tr");
-  [["Source", 1], ["Medium", 1], ["Campaign", 1], ...(hasContent ? [["Content", 1]] : []), ["Registros", 0], ["Atribución", 0]]
+  [["Source", 1], ["Medium", 1], ["Campaign", 1], ...(hasContent ? [["Content", 1]] : []), ["Registrations", 0], ["Attribution", 0]]
     .forEach(([l, left]) => hr.append(el("th", l, left ? "txt" : null))); t.append(hr);
   u.forEach((x, i) => {
     const tr = el("tr"), td = el("td", null, "txt"), sw = el("i", null, "sw"); sw.style.background = colorN(i);
@@ -204,7 +210,7 @@ function renderAttribution() {
   tt.append(el("td", "Total", "txt")); for (let i = 1; i < n; i++) tt.append(el("td")); tt.append(el("td", fmt(total)), el("td", total ? "100%" : "–")); t.append(tt);
 
   const box = $("pie"); box.replaceChildren();
-  if (!total) return void box.append(el("div", "Sin datos todavía.", "mute"));
+  if (!total) return void box.append(el("div", "No data yet.", "mute"));
   const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg"), C = 100, R = 96;
   svg.setAttribute("viewBox", "0 0 200 200");
   let a0 = -Math.PI / 2;
@@ -224,20 +230,20 @@ function renderAttribution() {
 function renderTraffic() {
   const all = data.traffic || [], latest = all.map((r) => r.captured_at).sort().pop();
   const rows = all.filter((r) => r.captured_at === latest);
-  $("trNote").textContent = latest ? `Instantánea manual del ${latest}, copiada de Analytics > Registrations > Traffic Attributes. No se suma a las cifras de la API de arriba, que solo ve ${fmt((data.utm || []).filter((x) => x.origen === "campana").reduce((n, x) => n + x.registros, 0))} registros con UTM.` : "Sin datos.";
+  $("trNote").textContent = latest ? `Manual snapshot from ${latest}, copied from Airmeet Analytics > Registrations > Traffic Attributes. It is not added to the API figures above, which only see ${fmt((data.utm || []).filter((x) => x.origen === "campana").reduce((n, x) => n + x.registros, 0))} registrations with a UTM.` : "No data.";
   [["source", "trSource"], ["medium", "trMedium"]].forEach(([dim, id]) => {
     const t = $(id); t.replaceChildren();
     const list = rows.filter((r) => r.dimension === dim).sort((a, b) => b.registrations - a.registrations);
     const total = list.reduce((n, r) => n + r.registrations, 0), max = Math.max(1, ...list.map((r) => r.registrations));
-    const hr = el("tr"); [["Valor", 1], ["Visitantes", 0], ["Registros", 0], ["%", 0]].forEach(([l, left]) => hr.append(el("th", l, left ? "txt" : null))); t.append(hr);
+    const hr = el("tr"); [["Value", 1], ["Visitors", 0], ["Registrations", 0], ["%", 0]].forEach(([l, left]) => hr.append(el("th", l, left ? "txt" : null))); t.append(hr);
     list.forEach((r) => { const tr = el("tr"), td = el("td", null, "txt"), m = el("span", null, "mini"), i = el("i"); i.style.width = (r.registrations / max * 100) + "%"; m.append(i);
       td.append(m, document.createTextNode(r.valor)); tr.append(td, el("td", r.visitors == null ? "–" : fmt(r.visitors)), el("td", fmt(r.registrations)), el("td", pct(total ? r.registrations / total : 0))); t.append(tr); });
     const tt = el("tr", null, "total"); tt.append(el("td", "Total", "txt"), el("td"), el("td", fmt(total)), el("td", total ? "100%" : "–")); t.append(tt);
   });
 }
 
-const COLS = [["utm_key", "UTM"], ["registros", "Registros"], ["pct_total", "% total"], ["aporte_meta", "Aporte a meta"], ["reg_7d", "7d"], ["tendencia", "Tendencia"],
-  ["tasa_asistencia", "Asistencia"], ["interacciones_por_registrado", "Inter./reg."], ["indice_valor", "Índice valor"], ["clicks", "Clicks"], ["conv", "Click→reg."]];
+const COLS = [["utm_key", "UTM"], ["registros", "Registrations"], ["pct_total", "% of total"], ["aporte_meta", "Goal contribution"], ["reg_7d", "7d"], ["tendencia", "Trend"],
+  ["tasa_asistencia", "Attendance"], ["interacciones_por_registrado", "Interact./reg."], ["indice_valor", "Value index"], ["clicks", "Clicks"], ["conv", "Click→reg."]];
 
 function renderTable() {
   const q = $("q").value.toLowerCase(), fs = $("fsrc").value, fm = $("fmed").value;
@@ -252,7 +258,7 @@ function renderTable() {
     const tr = el("tr");
     const tcls = r.tendencia > 0 ? "up" : r.tendencia < 0 ? "down" : "";
     [[r.utm_key], [fmt(r.registros)], [pct(r.pct_total)], [pct(r.aporte_meta)], [fmt(r.reg_7d)], [(r.tendencia > 0 ? "+" : "") + fmt(r.tendencia), tcls],
-     [pct(r.tasa_asistencia)], [fmt(r.interacciones_por_registrado, 2)], [pct(r.indice_valor)], ["pendiente"], ["pendiente"]]
+     [pct(r.tasa_asistencia)], [fmt(r.interacciones_por_registrado, 2)], [pct(r.indice_valor)], ["pending"], ["pending"]]
       .forEach(([v, cls]) => tr.append(el("td", v, cls)));
     t.append(tr);
   });
@@ -273,7 +279,7 @@ function renderTops() {
 
 function renderDaily() {
   const d = data.daily || [], box = $("daily"); box.replaceChildren(); $("dailyLegend").replaceChildren();
-  if (!d.length) return void box.append(el("div", "Sin datos todavía.", "mute"));
+  if (!d.length) return void box.append(el("div", "No data yet.", "mute"));
   const tot = {}; d.forEach((r) => tot[r.utm_key] = (tot[r.utm_key] || 0) + r.registros);
   const keys = Object.keys(tot).sort((a, b) => tot[b] - tot[a]);
   const days = [...new Set(d.map((r) => r.dia))].sort(), by = {};
