@@ -1,27 +1,22 @@
-"""Diagnóstico de una sola vez: roles y endpoints de Airmeet. Solo conteos y nombres de campos."""
+"""Diagnóstico de una sola vez: organigrama en /info. Solo conteos y nombres de campos."""
 import collections, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 import sync_airmeet as s
 
 tok = s.auth()
-rows = list(s.participants(tok))
-print("participants:", len(rows))
-for k in ("user_type", "user_role", "attendee_type", "attendee_status", "access_type", "checked_in", "invite_sent"):
-    print(k, dict(collections.Counter(str(r.get(k)) for r in rows)))
-print("cruce type x role x registered:", dict(collections.Counter((str(r.get("user_type")), str(r.get("user_role")), str(r.get("is_registered"))) for r in rows)))
-for path in ("organizers", "hosts", "speakers", "team-members", "teammates", "moderators", "exhibitors", "booths", "sessions", "info", "attendees", "invitees", "invited-users"):
-    try:
-        b = s.get(tok, f"/airmeet/{s.EVENT}/{path}", {"size": 100})
-    except Exception as e:
-        print(path, "->", e); continue
-    if isinstance(b, dict):
-        lists = {k: len(v) for k, v in b.items() if isinstance(v, list)}
-        print(path, "-> OK claves:", sorted(b.keys())[:15], "listas:", lists)
-        for k, v in b.items():
-            if isinstance(v, list) and v and isinstance(v[0], dict):
-                print("   ", k, "campos:", sorted(v[0].keys())[:25])
-                for f in ("role", "user_role", "type", "user_type", "userType"):
-                    if f in v[0]:
-                        print("   ", f, dict(collections.Counter(str(x.get(f)) for x in v)))
-    else:
-        print(path, "-> OK tipo", type(b).__name__)
+part = {s.hid(r["email"]) for r in s.participants(tok) if r.get("email")}
+info = s.get(tok, f"/airmeet/{s.EVENT}/info")
+print("TODAS las claves:", sorted(info.keys()))
+for k, v in sorted(info.items()):
+    kl = k.lower()
+    if any(w in kl for w in ("organi", "team", "moder", "admin", "owner", "host", "role", "member", "staff", "manager", "exhibit", "user", "attend", "regist", "count", "total")):
+        if isinstance(v, list):
+            print(k, "lista", len(v), (sorted(v[0].keys())[:20] if v and isinstance(v[0], dict) else ""))
+        elif isinstance(v, dict):
+            print(k, "dict claves:", sorted(v.keys())[:20])
+        else:
+            print(k, "=", v)
+for k in ("speakers", "session_hosts", "session_cohosts"):
+    rows = info.get(k) or []
+    print(k, len(rows), "airmeetRoles:", dict(collections.Counter(str(r.get("airmeetRoles")) for r in rows)),
+          "| en participants:", sum(1 for r in rows if r.get("email") and s.hid(r["email"]) in part), "| con email:", sum(1 for r in rows if r.get("email")))
