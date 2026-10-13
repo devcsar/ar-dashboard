@@ -1,0 +1,20 @@
+name: diag-counts
+on: workflow_dispatch
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests==2.32.3
+      - run: python scripts/diag_counts.py
+        env:
+          AIRMEET_ACCESS_KEY: ${{ secrets.AIRMEET_ACCESS_KEY }}
+          AIRMEET_SECRET_KEY: ${{ secrets.AIRMEET_SECRET_KEY }}
+          AIRMEET_REGION_URL: ${{ secrets.AIRMEET_REGION_URL }}
+          AIRMEET_EVENT_ID: ${{ secrets.AIRMEET_EVENT_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          HASH_SALT: ${{ secrets.HASH_SALT }}
