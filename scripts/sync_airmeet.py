@@ -140,9 +140,18 @@ def run():
             real = bool(p.get("is_registered")) and not any(
                 t in f'{p.get("user_type")} {p.get("user_role")}'.lower() for t in EXCLUDED_TYPES)
             h = hid(email)
+            kind = f'{p.get("user_type")} {p.get("user_role")}'.lower()
+            if real:
+                seg = "registered"
+            elif "speaker" in kind:
+                seg = "speaker"
+            elif not p.get("is_registered"):
+                seg = "pending"
+            else:
+                seg = "other"
             if h in regs:  # duplicado: se queda el primer registro
                 continue
-            regs[h] = {"id": h, "es_real": real, "registered_at": ts(p.get("registrationDate")),
+            regs[h] = {"id": h, "es_real": real, "segmento": seg, "registered_at": ts(p.get("registrationDate")),
                        "origen": "importado" if p.get("access_type") == "CSV" else "directo", "attended": False, "synced_at": now}
         log(f"participantes: {len(regs)}")
 
@@ -180,7 +189,7 @@ def run():
 
         # La sección de registros se escribe por completo en cada corrida (idempotente).
         keys = ["id", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term",
-                "origen", "es_real", "registered_at", "attended", "synced_at"]
+                "origen", "es_real", "segmento", "registered_at", "attended", "synced_at"]
         rows = [{k: r.get(k) for k in keys} for r in regs.values()]
         upsert("attr_registrations", rows, "id")
         upsert("attr_interactions", list(inter.values()), "registration_id,tipo,ocurrio_at")

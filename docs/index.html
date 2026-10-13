@@ -166,8 +166,11 @@ function render() {
   const u = data.utm || [], camp = u.filter((x) => x.origen === "campana");
   const bestReg = [...camp].sort((a, b) => b.registros - a.registros)[0];
   const bestInt = [...camp].filter((x) => x.registros >= 5).sort((a, b) => b.interacciones_por_registrado - a.interacciones_por_registrado)[0];
+  const seg = Object.fromEntries((data.segments || []).map((x) => [x.segmento, x.n]));
+  const segTotal = Object.values(seg).reduce((n, v) => n + v, 0);
+  const segLabel = `Total in Airmeet · ${fmt(seg.registered || 0)} registrations + ${fmt(seg.speaker || 0)} speakers + ${fmt(seg.pending || 0)} pending` + (seg.other ? ` + ${fmt(seg.other)} other` : "");
   const c = $("cards"); c.replaceChildren();
-  [[fmt(k.reales), "Real registrations"], [fmt(camp.length), "Active UTMs"],
+  [[fmt(segTotal), segLabel], [fmt(camp.length), "Active UTMs"],
    [bestReg ? bestReg.utm_key : "–", `Best by registrations${bestReg ? " · " + fmt(bestReg.registros) : ""}`],
    [bestInt ? bestInt.utm_key : "–", `Best by interactions${bestInt ? " · " + fmt(bestInt.interacciones_por_registrado, 2) + " each (min. 5 reg.)" : ""}`]]
     .forEach(([v, l]) => { const d = el("div", null, "card"); d.append(el("div", v, "big"), el("div", l, "mute")); c.append(d); });
