@@ -182,7 +182,7 @@ def run():
             for q in row.get("questions") or []:
                 add(row.get("email"), "pregunta", ts(q.get("time_stamp")))
         for b in get(token, f"/airmeet/{EVENT}/booths").get("booths") or []:
-            for v in paged(token, f"/airmeet/{EVENT}/booth/{b['uid']}/booth-attendance"):
+            for v in paged(token, f"/airmeet/{EVENT}/booth/{b['uid']}/booth-attendance", tolerate=(400,)):
                 add(v.get("email"), "booth", ts(v.get("time_stamp")))
         for v in paged(token, f"/airmeet/{EVENT}/event-replay-attendees", tolerate=(400,)):
             add(v.get("email"), "replay", None)
