@@ -61,7 +61,7 @@ tr.total td{font-weight:700;border-top:2px solid var(--ink)}
 <div id="dashboard" class="hide">
 <header class="top"><div class="in">
   <h1>Airflow Summit 2026 <b>Online Reconnect</b> · UTM Attribution</h1>
-  <div><span class="mute" id="sync"></span> <button class="ghost" id="refresh">Refresh</button> <button class="ghost" id="logout">Log out</button></div>
+  <div><span class="mute" id="sync"></span> <button class="ghost" id="logout">Log out</button></div>
 </div></header>
 <main>
 
@@ -136,13 +136,9 @@ $("loginForm").addEventListener("submit", async (e) => {
   } catch { $("err").textContent = "Could not connect."; }
 });
 $("logout").onclick = () => showGate();
-$("refresh").onclick = async () => {
-  const b = $("refresh"); b.disabled = true; b.textContent = "Refreshing…";
-  await load();
-  b.disabled = false; b.textContent = "Refresh";
-};
+setInterval(() => { if (data) load(true); }, 5 * 60_000);  // recarga silenciosa; el sync de Airmeet corre cada hora
 
-async function load() {
+async function load(quiet) {
   const t = sessionStorage.getItem(KEY);
   if (!t) return showGate();
   try {
@@ -151,12 +147,16 @@ async function load() {
     if (!r.ok) throw 0;
     data = relabel(await r.json());
     showDashboard(); render();
-  } catch { showGate("Could not load the data."); }
+  } catch { if (!quiet) showGate("Could not load the data."); }
 }
+
+// El sync corre al minuto :01 de cada hora (UTC).
+function nextSync() { const d = new Date(); d.setUTCMinutes(1, 0, 0); if (d <= new Date()) d.setUTCHours(d.getUTCHours() + 1); return d; }
 
 function render() {
   const k = data.kpi || {};
-  $("sync").textContent = (data.last_sync ? "Last sync with Airmeet: " + new Date(data.last_sync).toLocaleString("en-US") : "No syncs yet") + " · loaded " + new Date().toLocaleTimeString("en-US");
+  const when = (d) => d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  $("sync").textContent = (data.last_sync ? "Last sync: " + when(new Date(data.last_sync)) : "No syncs yet") + " · Next sync: " + when(nextSync());
   $("meter").style.width = Math.min(100, (k.avance || 0) * 100) + "%";
   const m = $("meta"); m.replaceChildren();
   [[`${fmt(k.reales)} / ${fmt(k.meta_registros)}`, `Progress ${pct(k.avance)}`], [fmt(k.faltantes), "Remaining"], [fmt(k.dias_restantes), "Days to Nov 4"],

@@ -1,8 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-// Llamada cada 15 min por pg_cron. Lanza el workflow de GitHub solo si ya toca:
-// cada hora normalmente, cada 15 min del 28 de oct al 6 de nov (la semana previa y el evento).
+// Llamada al minuto :01 de cada hora por pg_cron. Lanza el workflow de GitHub solo si ya pasó
+// casi una hora desde la última corrida (evita duplicados con el cron de GitHub).
 const REPO = "devcsar/ar-dashboard";
 const WORKFLOW = "sync.yml";
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json" } });
@@ -16,8 +16,7 @@ Deno.serve(async () => {
     .order("started_at", { ascending: false }).limit(1).maybeSingle();
 
   const now = Date.now();
-  const intensive = now >= Date.UTC(2026, 9, 28) && now < Date.UTC(2026, 10, 7);
-  const minGapMs = (intensive ? 13 : 55) * 60_000;
+  const minGapMs = 55 * 60_000;
   if (last && now - new Date(last.started_at).getTime() < minGapMs) return json({ skipped: "too_soon" });
 
   const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}/dispatches`, {
